@@ -1,0 +1,7 @@
+name: SkyGames
+version: '${version}'
+main: me.verwelius.skygames.SkyGames
+api-version: '1.19'
+commands:
+  arbuz:
+    permission: op
