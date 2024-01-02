@@ -15,9 +15,10 @@ repositories {
 
 dependencies {
     compileOnly "io.papermc.paper:paper-api:1.19-R0.1-SNAPSHOT"
-    implementation "org.spongepowered:configurate-yaml:4.1.2"
+    compileOnly "org.spongepowered:configurate-yaml:4.1.2"
 }
 
+/*
 jar {
     manifest {
         attributes "Main-Class": "me.verwelius.skygames.SkyGames"
@@ -27,6 +28,7 @@ jar {
     }
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
+ */
 
 processResources {
     def props = [version: version]

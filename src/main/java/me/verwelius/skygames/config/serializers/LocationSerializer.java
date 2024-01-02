@@ -33,14 +33,14 @@ public class LocationSerializer implements TypeSerializer<Location> {
         if(strings.length != 3 && strings.length != 5) return null;
 
         Location loc = new Location(null,
-                Integer.parseInt(strings[0]),
-                Integer.parseInt(strings[1]),
-                Integer.parseInt(strings[2])
+                Double.parseDouble(strings[0]),
+                Double.parseDouble(strings[1]),
+                Double.parseDouble(strings[2])
         );
 
         if(strings.length == 5) {
-            loc.setPitch(Integer.parseInt(strings[3]));
-            loc.setYaw(Integer.parseInt(strings[4]));
+            loc.setPitch(Float.parseFloat(strings[3]));
+            loc.setYaw(Float.parseFloat(strings[4]));
         }
 
         return loc;
