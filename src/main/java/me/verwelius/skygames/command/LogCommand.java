@@ -16,8 +16,9 @@ public class LogCommand extends AbstractCommand {
 
     @Override
     protected void execute(CommandSender sender, String[] args) {
+
         sender.sendMessage(String.valueOf(System.currentTimeMillis()));
-        controller.start();
+
     }
 
     @Override

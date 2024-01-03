@@ -1,7 +1,7 @@
 package me.verwelius.skygames;
 
 import me.verwelius.skygames.command.LogCommand;
-import me.verwelius.skygames.config.MapConfig;
+import me.verwelius.skygames.config.Config;
 import me.verwelius.skygames.config.serializers.FileSerializer;
 import me.verwelius.skygames.config.serializers.LocationSerializer;
 import me.verwelius.skygames.config.serializers.WorldSerializer;
@@ -13,6 +13,7 @@ import org.bukkit.World;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.spongepowered.configurate.ConfigurateException;
 import org.spongepowered.configurate.ConfigurationNode;
+import org.spongepowered.configurate.yaml.NodeStyle;
 import org.spongepowered.configurate.yaml.YamlConfigurationLoader;
 
 import java.io.File;
@@ -24,16 +25,18 @@ public final class SkyGames extends JavaPlugin {
         // Plugin startup logic
         DirFile.setFolder(getDataFolder());
 
-        File mapConfigFile = new DirFile("map.yml");
-        MapConfig mapConfig = (MapConfig) getConfig(mapConfigFile, MapConfig.class);
+        File configFile = new DirFile("config.yml");
+        Config config = getConfig(configFile);
 
-        GameController controller = new GameController(mapConfig);
+        GameController controller = new GameController(this, config);
         Bukkit.getPluginManager().registerEvents(controller, this);
 
         new LogCommand(controller).register(getCommand("log"));
+
+        controller.start();
     }
 
-    private Object getConfig(File file, Class<?> clazz) {
+    private Config getConfig(File file) {
         try {
             YamlConfigurationLoader loader = YamlConfigurationLoader.builder()
                     .defaultOptions(opts -> opts.serializers(build -> {
@@ -41,11 +44,12 @@ public final class SkyGames extends JavaPlugin {
                         build.register(World.class, new WorldSerializer());
                         build.register(Location.class, new LocationSerializer());
                     }))
+                    .nodeStyle(NodeStyle.BLOCK)
                     .path(file.toPath())
                     .build();
             ConfigurationNode root = loader.load();
-            Object config = root.get(clazz);
-            root.set(clazz, config);
+            Config config = root.get(Config.class);
+            root.set(Config.class, config);
             loader.save(root);
             return config;
         } catch (ConfigurateException e) {
