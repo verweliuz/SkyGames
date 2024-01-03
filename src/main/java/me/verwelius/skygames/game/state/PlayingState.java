@@ -5,16 +5,18 @@ import me.verwelius.skygames.game.GameController;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
+import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Stream;
+import java.util.stream.Collectors;
 
 public class PlayingState extends GameState {
 
@@ -47,13 +49,21 @@ public class PlayingState extends GameState {
     private void addSpectator(Player player) {
         spectators.add(player);
         player.setGameMode(GameMode.SPECTATOR);
-        player.teleport(config.playingConfig.spectatorSpawn);
+
+        Location location = config.playingConfig.spectatorSpawn;
+        location.setWorld(config.gameWorld);
+        controller.schedule(() -> player.teleport(location), 0);
     }
 
     @Override
     public void removePlayer(Player player) {
         super.removePlayer(player);
         spectators.remove(player);
+    }
+
+    @EventHandler
+    private void onPlayerQuit(PlayerQuitEvent event) {
+        Player player = event.getPlayer();
         player.setHealth(0.0f);
     }
 
@@ -68,19 +78,22 @@ public class PlayingState extends GameState {
 
     @EventHandler
     private void onPlayerDeath(PlayerDeathEvent event) {
+        event.setCancelled(true);
+
         Player player = event.getPlayer();
-        addSpectator(player);
+        if(getPlayers().contains(player)) addSpectator(player);
 
         Player damager = lastDamager.get(player);
         Integer damageTime = lastPlayerDamageTime.get(player);
-        if(damager == null || damageTime == null) return;
-        if(Bukkit.getCurrentTick() - damageTime <= config.playingConfig.countsKillFor) {
-            kills.put(damager, kills.getOrDefault(damager, 0));
+        if(damager != null && damageTime != null) {
+            if(Bukkit.getCurrentTick() - damageTime <= config.playingConfig.countsKillFor) {
+                kills.put(damager, kills.getOrDefault(damager, 0) + 1);
+            }
         }
 
-        Stream<Player> alive = getPlayers().stream().filter(p -> !spectators.contains(p));
-        if(alive.count() == 1) {
-            Player winner = alive.findAny().get();
+        Set<Player> alive = getPlayers().stream().filter(p -> !spectators.contains(p)).collect(Collectors.toSet());
+        if(alive.size() == 1) {
+            Player winner = alive.iterator().next();
             controller.announce(
                     Component.text("Игрок " + winner.getName() + " победил с " + kills.getOrDefault(winner, 0) + " убийствами"),
                     getPlayers()

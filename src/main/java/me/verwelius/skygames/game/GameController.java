@@ -15,6 +15,7 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitTask;
 
+import java.util.HashSet;
 import java.util.Set;
 
 public class GameController implements Listener {
@@ -38,8 +39,9 @@ public class GameController implements Listener {
 
     public void updateState(GameState state) {
         if(this.state != null) {
-            this.state.getPlayers().forEach(state::addPlayer);
-            this.state.getPlayers().forEach(this.state::removePlayer);
+            Set<Player> players = new HashSet<>(this.state.getPlayers());
+            players.forEach(state::addPlayer);
+            players.forEach(this.state::removePlayer);
             HandlerList.unregisterAll(this.state);
         }
 
@@ -49,6 +51,10 @@ public class GameController implements Listener {
 
     public void announce(Component message, Set<Player> audience) {
         audience.forEach(p -> p.sendMessage(message));
+    }
+
+    public void schedule(Runnable task, int delay) {
+        Bukkit.getScheduler().runTaskLater(plugin, task, delay);
     }
 
     public BukkitTask schedule(Runnable task, int delay, int period) {
