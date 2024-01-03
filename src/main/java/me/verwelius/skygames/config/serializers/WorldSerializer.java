@@ -15,7 +15,6 @@ public class WorldSerializer implements TypeSerializer<World> {
         if(world == null) return;
 
         target.set(world.getName());
-
     }
 
     @Override

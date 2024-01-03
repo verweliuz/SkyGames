@@ -20,7 +20,6 @@ public class LocationSerializer implements TypeSerializer<Location> {
         }
 
         target.set(serialized);
-
     }
 
     @Override
