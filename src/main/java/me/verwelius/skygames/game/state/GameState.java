@@ -10,6 +10,8 @@ import java.util.Set;
 
 public abstract class GameState implements Listener {
 
+    protected final long started;
+
     protected final GameController controller;
     protected final Config config;
 
@@ -18,10 +20,17 @@ public abstract class GameState implements Listener {
     protected GameState(GameController controller, Config config) {
         this.controller = controller;
         this.config = config;
+        this.started = System.currentTimeMillis();
     }
 
     public void addPlayer(Player player) {
         players.add(player);
+        player.setHealth(20.0f);
+        player.setSaturation(20.0f);
+        player.setFoodLevel(20);
+        player.setLevel(0);
+        player.setExp(0.0f);
+        player.clearActivePotionEffects();
     }
 
     public void removePlayer(Player player) {

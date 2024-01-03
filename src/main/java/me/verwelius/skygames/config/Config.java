@@ -11,5 +11,6 @@ public class Config {
 
     public MapConfig mapConfig = new MapConfig();
     public WaitingConfig waitingConfig = new WaitingConfig();
+    public PlayingConfig playingConfig = new PlayingConfig();
 
 }
