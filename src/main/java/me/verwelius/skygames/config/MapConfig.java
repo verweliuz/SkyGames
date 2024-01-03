@@ -1,10 +1,12 @@
 package me.verwelius.skygames.config;
 
+import me.verwelius.skygames.util.DirFile;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.spongepowered.configurate.objectmapping.ConfigSerializable;
 
+import java.io.File;
 import java.util.List;
 
 @ConfigSerializable
@@ -12,7 +14,7 @@ public class MapConfig {
 
     public World gameWorld = Bukkit.getWorld("world");
 
-    public String mapPath = "map.schem";
+    public File mapFile = new DirFile("map.schem");
 
     public Location mapLocation = new Location(null, 0, 80, 0);
 

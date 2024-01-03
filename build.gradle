@@ -11,24 +11,19 @@ repositories {
         name = "papermc-repo"
         url = "https://repo.papermc.io/repository/maven-public/"
     }
+    maven {
+        name = "enginehub-maven"
+        url = "https://maven.enginehub.org/repo/"
+    }
 }
 
 dependencies {
-    compileOnly "io.papermc.paper:paper-api:1.19-R0.1-SNAPSHOT"
-    compileOnly "org.spongepowered:configurate-yaml:4.1.2"
+    implementation(platform("com.intellectualsites.bom:bom-newest:1.40"))
+    compileOnly("io.papermc.paper:paper-api:1.19-R0.1-SNAPSHOT")
+    compileOnly("org.spongepowered:configurate-yaml:4.1.2")
+    compileOnly("com.fastasyncworldedit:FastAsyncWorldEdit-Core")
+    compileOnly("com.fastasyncworldedit:FastAsyncWorldEdit-Bukkit") {transitive = false}
 }
-
-/*
-jar {
-    manifest {
-        attributes "Main-Class": "me.verwelius.skygames.SkyGames"
-    }
-    from {
-        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
-    }
-    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-}
- */
 
 processResources {
     def props = [version: version]
@@ -37,4 +32,15 @@ processResources {
     filesMatching('plugin.yml') {
         expand props
     }
+}
+
+// на всякий
+jar {
+    manifest {
+        attributes "Main-Class": "me.verwelius.skygames.SkyGames"
+    }
+    from {
+        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
