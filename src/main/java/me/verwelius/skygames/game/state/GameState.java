@@ -4,6 +4,7 @@ import me.verwelius.skygames.config.Config;
 import me.verwelius.skygames.game.GameController;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
+import org.bukkit.util.Vector;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -31,6 +32,10 @@ public abstract class GameState implements Listener {
         player.setLevel(0);
         player.setExp(0.0f);
         player.clearActivePotionEffects();
+        player.getInventory().clear();
+        player.getOpenInventory().getTopInventory().clear();
+        player.setItemOnCursor(null);
+        player.setVelocity(new Vector(0, 0, 0));
     }
 
     public void removePlayer(Player player) {

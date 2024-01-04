@@ -10,6 +10,7 @@ import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.Chest;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Projectile;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
@@ -45,7 +46,6 @@ public class PlayingState extends GameState {
     @Override
     public void addPlayer(Player player) {
         super.addPlayer(player);
-        player.getInventory().clear();
 
         if(initialPlayers.contains(player)) {
             player.setGameMode(GameMode.SURVIVAL);
@@ -76,9 +76,13 @@ public class PlayingState extends GameState {
 
     @EventHandler
     private void onEntityDamage(EntityDamageByEntityEvent event) {
-        if(event.getEntity() instanceof Player player
-        && event.getDamager() instanceof Player damager) {
-            lastDamager.put(player, damager);
+        if(event.getEntity() instanceof Player player) {
+            if(event.getDamager() instanceof Player damager) {
+                lastDamager.put(player, damager);
+            } else if(event.getDamager() instanceof Projectile damager
+            && damager.getShooter() instanceof Player shooter) {
+                lastDamager.put(player, shooter);
+            } else return;
             lastPlayerDamageTime.put(player, Bukkit.getCurrentTick());
         }
     }
@@ -130,7 +134,6 @@ public class PlayingState extends GameState {
         Block block = event.getClickedBlock();
         if(block != null) {
             if(block.getState() instanceof Chest chest) {
-                System.out.println(123);
                 Location loc = chest.getLocation();
                 if(generatedChests.contains(loc)) return;
                 Random random = new Random();

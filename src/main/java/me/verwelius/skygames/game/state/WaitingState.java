@@ -2,8 +2,10 @@ package me.verwelius.skygames.game.state;
 
 import me.verwelius.skygames.config.Config;
 import me.verwelius.skygames.game.GameController;
+import me.verwelius.skygames.util.Schematic;
 import org.bukkit.*;
 import org.bukkit.block.Block;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.block.BlockBreakEvent;
@@ -27,6 +29,13 @@ public class WaitingState extends GameState {
         super(controller, config);
         this.availableCapsules = config.waitingConfig.spawnCapsules;
         this.usingCapsule = new HashMap<>();
+
+        config.gameWorld.getEntities().forEach(e -> {
+            if(e.getType() != EntityType.PLAYER) e.remove();
+        });
+
+        Schematic schematic = new Schematic(config.mapConfig.mapFile);
+        schematic.paste(config.gameWorld, config.mapConfig.mapLocation);
     }
 
     @Override
@@ -58,22 +67,24 @@ public class WaitingState extends GameState {
         if((countdownTask == null || countdownTask.isCancelled()) && secondsLeft != null) {
             countdownTask = controller.schedule(() -> {
 
+                updateLevel();
+                makeSound();
+
                 if(secondsLeft == null) {
                     countdownTask.cancel();
                     return;
                 }
 
-                secondsLeft--;
-                makeSound();
-                updateLevel();
-
                 if(secondsLeft == 0) {
                     countdownTask.cancel();
                     PlayingState nextState = new PlayingState(controller, config, getPlayers());
                     controller.updateState(nextState);
+                    return;
                 }
 
-            }, 20, 20);
+                secondsLeft--;
+
+            }, 0, 20);
         }
 
         updateLevel();

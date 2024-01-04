@@ -3,7 +3,6 @@ package me.verwelius.skygames.game;
 import me.verwelius.skygames.config.Config;
 import me.verwelius.skygames.game.state.GameState;
 import me.verwelius.skygames.game.state.WaitingState;
-import me.verwelius.skygames.util.Schematic;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -31,9 +30,6 @@ public class GameController implements Listener {
     }
 
     public void start() {
-        Schematic schematic = new Schematic(config.mapConfig.mapFile);
-        schematic.paste(config.gameWorld, config.mapConfig.mapLocation);
-
         updateState(new WaitingState(this, config));
     }
 
