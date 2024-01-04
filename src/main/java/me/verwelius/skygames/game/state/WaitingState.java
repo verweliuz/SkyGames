@@ -85,7 +85,7 @@ public class WaitingState extends GameState {
             p.playSound(
                     p, secondsLeft == 0 ?
                     Sound.BLOCK_NOTE_BLOCK_BELL : Sound.BLOCK_NOTE_BLOCK_BASS,
-                    1f, 1.2f
+                    1.0f, 1.2f
             );
         });
     }
