@@ -6,16 +6,21 @@ import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.block.Block;
+import org.bukkit.block.Chest;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.loot.LootContext;
+import org.bukkit.loot.LootTables;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class PlayingState extends GameState {
@@ -25,6 +30,7 @@ public class PlayingState extends GameState {
     private final Map<Player, Integer> kills;
     private final Map<Player, Player> lastDamager;
     private final Map<Player, Integer> lastPlayerDamageTime;
+    private final Set<Location> generatedChests;
 
     protected PlayingState(GameController controller, Config config, Set<Player> initialPlayers) {
         super(controller, config);
@@ -33,6 +39,7 @@ public class PlayingState extends GameState {
         this.kills = new HashMap<>();
         this.lastDamager = new HashMap<>();
         this.lastPlayerDamageTime = new HashMap<>();
+        this.generatedChests = new HashSet<>();
     }
 
     @Override
@@ -99,6 +106,39 @@ public class PlayingState extends GameState {
                     getPlayers()
             );
             controller.updateState(new EndingState(controller, config, winner));
+        }
+    }
+
+    @EventHandler
+    private void onBlockPlace(BlockPlaceEvent event) {
+        Block block = event.getBlockPlaced();
+        if(block.getType() == Material.CHEST) {
+            event.setCancelled(true);
+        }
+    }
+
+    @EventHandler
+    private void onBlockBreak(BlockBreakEvent event) {
+        Block block = event.getBlock();
+        if(block.getType() == Material.CHEST) {
+            event.setCancelled(true);
+        }
+    }
+
+    @EventHandler
+    private void onInteract(PlayerInteractEvent event) {
+        Block block = event.getClickedBlock();
+        if(block != null) {
+            if(block.getState() instanceof Chest chest) {
+                System.out.println(123);
+                Location loc = chest.getLocation();
+                if(generatedChests.contains(loc)) return;
+                Random random = new Random();
+                List<LootTables> tables = config.lootConfig.lootTables;
+                tables.get(random.nextInt(0, tables.size())).getLootTable().fillInventory(
+                        chest.getBlockInventory(), random, new LootContext.Builder(loc).build());
+                generatedChests.add(loc);
+            }
         }
     }
 
